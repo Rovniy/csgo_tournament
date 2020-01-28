@@ -7,6 +7,7 @@
     <div class="block">
       <el-button type="primary" @click="joinAsAdmin" :disabled="isNoName">Я - Админ</el-button>
       <el-button type="primary" @click="joinAsCaptain" :disabled="isNoName">Я - Капитан команды</el-button>
+      <el-button type="primary" @click="joinAsPlayer">Я - Игрок</el-button>
     </div>
   </div>
 </template>
@@ -37,6 +38,12 @@ export default {
         name: this.name
       })
       console.log('click-cap1')
+    },
+    joinAsPlayer() {
+      this.$socket.emit('msg', {
+        type: 'PLAYER_ENTER'
+      })
+      console.log('click-player')
     }
   },
   beforeMount () {

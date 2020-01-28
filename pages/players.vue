@@ -12,7 +12,7 @@
 
       <div class="block-pickers__players">
         <ul class="block-pickers__players__list">
-          <li class="block-pickers__players__list_item" v-for="(player, index) in players" :key="index" @click="pickPlayer(index)">{{player}}</li>
+          <li class="block-pickers__players__list_item" v-for="(player, index) in players" :key="index" @click="pickPlayer(player)">{{player}}</li>
         </ul>
       </div>
 
@@ -32,16 +32,7 @@ export default {
       return {
           captain1: 'xyi',
           captain2: 'pizda',
-          players: [
-              'one',
-              'two',
-              'three',
-              'four',
-              'five',
-              'six',
-              'seven',
-              'eight',
-          ],
+          players: [],
           team1: [
               'player1',
               'player1',
@@ -56,8 +47,24 @@ export default {
           ]
       }
   },
+  beforeMount() {
+    this.$socket.on('GET_PLAYERS', data => {
+      this.players = data
+      console.log('GET_PLAYERS', data)
+    })
+    this.$socket.on('CHOOSE_PLAYER', data => {
+      this.players = data
+      console.log('CHOOSE_PLAYER', data)
+    })
+  },
+  mounted() {
+    setTimeout(() => {
+      this.$socket.emit('msg', { type: 'GET_PLAYERS'})
+    }, 500)
+  },
   methods: {
-      pickPlayer(index) {
+      pickPlayer(player) {
+        this.$socket.emit('msg', { type: 'CHOOSE_PLAYER', name: player })
 
       },
       removePlayerTeam1(index) {
