@@ -5,8 +5,8 @@
       <el-input v-model="name" />
     </div>
     <div class="block">
-      <el-button type="primary" @click="joinAsAdmin" :disabled="isNoName">Я - Админ</el-button>
-      <el-button type="primary" @click="joinAsCaptain" :disabled="isNoName">Я - Капитан команды</el-button>
+      <el-button type="primary" @click="joinAsAdmin" :disabled="isNoName || isAdmin">Я - Админ</el-button>
+      <el-button type="primary" @click="joinAsCaptain" :disabled="isNoName || isCaptains">Я - Капитан команды</el-button>
       <el-button type="primary" @click="joinAsPlayer">Я - Игрок</el-button>
     </div>
   </div>
@@ -16,40 +16,42 @@
 export default {
   data () {
     return {
-      name: 'Ravy'
+      name: 'Ravy',
+      room: null
     }
   },
   computed: {
     isNoName() {
       return this.name.length < 3
+    },
+    isAdmin() {
+      return this?.room?.admin?.name !== undefined
+    },
+    isCaptains() {
+      return this?.room?.captain_one?.name !== undefined && this?.room?.captain_two?.name !== undefined
     }
   },
   methods: {
     joinAsAdmin() {
-      this.$socket.emit('msg', {
-        type: 'ADMIN_ENTER',
-        name: this.name
-      })
-      console.log('click-admin')
+      this.$socket.emit('msg', { type: 'ADMIN_ENTER', name: this.name })
+      this.$socket.emit('msg', { type: 'GET_STATUS' })
     },
     joinAsCaptain() {
-      this.$socket.emit('msg', {
-        type: 'CAPTAIN_ENTER',
-        name: this.name
-      })
-      console.log('click-cap1')
+      this.$socket.emit('msg', { type: 'CAPTAIN_ENTER', name: this.name })
+      this.$socket.emit('msg', { type: 'GET_STATUS' })
     },
     joinAsPlayer() {
-      this.$socket.emit('msg', {
-        type: 'PLAYER_ENTER'
-      })
-      console.log('click-player')
+      this.$socket.emit('msg', { type: 'PLAYER_ENTER' })
     }
   },
   beforeMount () {
     this.$socket.on('INCOMING_TASK', (data) => {
       console.log('INCOMING_TASK', data)
       this.task = data
+    })
+    this.$socket.on('GET_STATUS', (data) => {
+      console.log('GET_STATUS', data)
+      this.room = data
     })
     this.$socket.on('COMPLETED_TASKS', (data) => {
       console.log('COMPLETED_TASKS', data)

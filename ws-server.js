@@ -81,8 +81,8 @@ io.on('connection', function (socket) {
         socket.emit('PLAYER_ENTER')
         break
 
-      case 'GET_MAPS':
-        socket.emit('GET_MAPS', room.maps)
+      case 'GET_STATUS':
+        socket.emit('GET_STATUS', room)
         break
 
       case 'GO_CHOOSE_MAP':
@@ -110,14 +110,6 @@ io.on('connection', function (socket) {
         socket.emit('CREATE_PLAYER', room.players)
         break
 
-      case 'GET_TEAMS':
-        socket.emit('GET_TEAMS', room.teams)
-        break
-
-      case 'GET_PLAYERS':
-        socket.emit('GET_PLAYERS', room.players)
-        break
-
       case 'DELETE_PLAYERS':
         const playerIndex = room.players.indexOf(data.name)
 
@@ -129,15 +121,19 @@ io.on('connection', function (socket) {
 
       case 'CHOOSE_PLAYER':
         if (room.whose_turn === 1) {
-          room.teams[room.captain_one.name].push(data.player)
+          room.teams[room.captain_one.name].push(data.name)
           room.whose_turn = 2
-          socket.emit('WHOSE_TURN', room.captain_two.token)
         } else if (room.whose_turn === 2) {
-          room.teams[room.captain_two.name].push(data.player)
+          room.teams[room.captain_two.name].push(data.name)
           room.whose_turn = 1
-          socket.emit('WHOSE_TURN', room.captain_one.token)
         }
-        socket.emit('CHOOSE_PLAYER', room.teams)
+
+        const playerInd = room.players.indexOf(data.name)
+
+        if (playerInd !== -1) {
+          room.players.splice(playerInd, 1)
+        }
+        socket.emit('GET_STATUS', room.teams)
         break
 
       case 'CANCEL_CHOOSE_PLAYER':
@@ -153,13 +149,13 @@ io.on('connection', function (socket) {
 
         if (room.whose_turn === 1) {
           room.whose_turn = 2
-          socket.emit('WHOSE_TURN', room.captain_two.token)
         } else {
           room.whose_turn = 1
-          socket.emit('WHOSE_TURN', room.captain_one.token)
         }
 
-        socket.emit('CHOOSE_PLAYER', room.teams)
+        room.players.push(data.name)
+
+        socket.emit('GET_STATUS', room.teams)
         break
 
       default:
