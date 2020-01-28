@@ -1,10 +1,12 @@
 <template>
   <div class="container">
     <h1 class="title">xPloit Pracc Helper</h1>
+    <div>
+      <el-input v-model="name" />
+    </div>
     <div class="block">
-      <button class="block-button" @click="joinAsAdmin">Я - Админ</button>
-      <button class="block-button" @click="joinAsCaptainFirst">Я - Капитан <span class="block-button_colored">первой</span> команды</button>
-      <button class="block-button" @click="joinAsCaptainSecond">Я - Капитан <span class="block-button_colored">второй</span> команды</button>
+      <el-button type="primary" @click="joinAsAdmin" :disabled="isNoName">Я - Админ</el-button>
+      <el-button type="primary" @click="joinAsCaptain" :disabled="isNoName">Я - Капитан команды</el-button>
     </div>
   </div>
 </template>
@@ -13,21 +15,28 @@
 export default {
   data () {
     return {
-
+      name: 'Ravy'
     }
   },
   computed: {
-
+    isNoName() {
+      return this.name.length < 3
+    }
   },
   methods: {
     joinAsAdmin() {
+      this.$socket.emit('msg', {
+        type: 'ADMIN_ENTER',
+        name: this.name
+      })
       console.log('click-admin')
     },
-    joinAsCaptainFirst() {
+    joinAsCaptain() {
+      this.$socket.emit('msg', {
+        type: 'CAPTAIN_ENTER',
+        name: this.name
+      })
       console.log('click-cap1')
-    },
-    joinAsCaptainSecond() {
-      console.log('click-cap2')
     }
   },
   beforeMount () {
@@ -67,19 +76,4 @@ export default {
   font-size: 60px
   line-height: 80px
   margin-bottom: 100px
-.block
-  display: flex
-  flex-direction: column
-
-  &-button
-    font-size: 30px
-    line-height: 40px
-    margin-bottom: 25px
-    width: 500px
-    border: 2px solid black
-    border-radius: 10px
-    padding: 10px 0
-    background-color: white
-    &:hover
-      background-color: #f7f8fb
 </style>

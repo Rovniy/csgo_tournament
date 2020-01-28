@@ -5,8 +5,28 @@ const http = require('http').createServer(app) // eslint-disable-line import/ord
 const io = require('socket.io')(http)
 const MAP_POOL = ['de_dust2', 'de_mirage', 'de_nuke', 'de_inferno', 'de_train', 'de_vertigo', 'de_overpass']
 const room = {
-  admin: undefined
+  admin: {
+    name: undefined,
+    token: null
+  },
+  captain_one: {
+    name: undefined,
+    token: null
+  },
+  captain_two: {
+    name: undefined,
+    token: null
+  },
+  players: [],
+  maps: []
 }
+
+MAP_POOL.forEach(map => {
+  room.maps.push({
+    name: map,
+    banned: false
+  })
+})
 
 io.on('connection', function (socket) {
     console.log('USER CONNECTED. ID:', socket.id)
@@ -16,35 +36,58 @@ io.on('connection', function (socket) {
     })
 
     socket.on('msg', function (data) {
-        switch (data.type) {
+      console.log('msg', data)
+      switch (data.type) {
             case 'ADMIN_ENTER':
-                if (room.admin === undefined) {
-                  room.admin = data
+                if (room.admin.name === undefined) {
+                  room.admin.name = data.name
+                  room.admin.token = Date.now()
+                  socket.emit('ADMIN_ENTER_CONFIRM', room.admin)
+                  console.log('ADMIN_ENTER_FIRST_TIME')
+                } else if (room.admin.name === data.name) {
+                  socket.emit('ADMIN_ENTER_CONFIRM', room.admin)
+                  console.log('ADMIN_ENTER_AGAIN')
                 }
-                break
+              break
 
             case 'CAPTAIN_ENTER':
-                // if (data.password === process.env.ADMIN_PASSWORD) {
-                //     console.log('CLEAR_TASKS')
-                //     completedTasks = []
-                //     db.push('/completedTasks', [])
-                //     io.emit('COMPLETED_TASKS', [])
-                // }
+              if (room.captain_one.name === undefined) {
+                room.captain_one.name = data.name
+                room.captain_one.token = Date.now()
+                socket.emit('CAPTAIN_ENTER_1_CONFIRM', room.captain_one)
+
+                console.log('CAPTAIN_ENTER_1_FIRST_TIME', room.captain_one)
+              } else if (room.captain_two.name === undefined && room.captain_one.name !== data.name) {
+                room.captain_two.name = data.name
+                room.captain_two.token = Date.now()
+                socket.emit('CAPTAIN_ENTER_2_CONFIRM', room.captain_two)
+
+                console.log('CAPTAIN_ENTER_2_FIRST_TIME', room.captain_two)
+              } else if (room.captain_one.name === data.name) {
+                socket.emit('CAPTAIN_ENTER_1_CONFIRM', room.captain_one)
+                console.log('CAPTAIN_ENTER_1_AGAIN', room.captain_two)
+              } else if (room.captain_two.name === data.name) {
+                socket.emit('CAPTAIN_ENTER_2_CONFIRM', room.captain_two)
+                console.log('CAPTAIN_ENTER_2_AGAIN', room.captain_two)
+              }
                 break
 
-            case 'GET_COMPLETED':
-                // console.log('GET_COMPLETED')
-                // socket.emit('COMPLETED_TASKS', completedTasks)
+            case 'GET_MAPS':
+                socket.emit('GET_MAPS', room.maps)
                 break
 
-            case 'GET_LAST_TASK':
-                // console.log('GET_LAST_TASK')
-                // socket.emit('GET_LAST_TASK', getLastTask())
+            case 'BAN_MAP':
+                room.maps.forEach(map => {
+                  if (map.name === data.map) {
+                    map.banned = true
+                  }
+                })
+                socket.emit('BAN_MAP', room.maps)
                 break
 
-            case 'FORCE_PING':
-                // console.log('FORCE_PING')
-                // socket.emit('FORCE_PING')
+            case 'CREATE_PLAYER':
+                room.players.push(data.map)
+                socket.emit('CREATE_PLAYER', room.players)
                 break
 
             case 'LOGIN':
