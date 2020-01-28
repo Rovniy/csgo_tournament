@@ -5,7 +5,7 @@
 </template>
 
 <script>
-export default {
+  export default {
     data() {
         return {
             room: null
@@ -31,15 +31,18 @@ export default {
         }
     },
     beforeMount() {
-        this.$socket.on('GET_STATUS', data => {
-            this.room = data
-            console.log('GET_STATUS', data)
-        })
+      this.$socket.on('GET_STATUS', data => {
+        this.room = data
+        console.log('GET_STATUS', data)
+      })
+    },
+    beforeDestroy() {
+      this.$socket.off('GET_STATUS')
     },
     mounted() {
-        setTimeout(() => {
-            this.$socket.emit('msg', {type: 'GET_STATUS'})
-        }, 500)
+      setTimeout(() => {
+        this.$socket.emit('msg', {type: 'GET_STATUS'})
+      }, 500)
     },
-}
+  }
 </script>

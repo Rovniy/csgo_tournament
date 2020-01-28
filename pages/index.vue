@@ -64,6 +64,12 @@ export default {
       localStorage.setItem('ROLE', '2')
     })
   },
+  beforeDestroy() {
+    this.$socket.off('GET_STATUS')
+    this.$socket.off('ADMIN_ENTER_CONFIRM')
+    this.$socket.off('CAPTAIN_ENTER_1_CONFIRM')
+    this.$socket.off('CAPTAIN_ENTER_2_CONFIRM')
+  },
   mounted () {
     setTimeout(() => {
       this.$socket.emit('msg', { type: 'GET_STATUS' })

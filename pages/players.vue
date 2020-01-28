@@ -103,6 +103,10 @@ export default {
       console.log('CHOOSE_PLAYER', data)
     })
   },
+  beforeDestroy() {
+    this.$socket.off('GET_STATUS')
+    this.$socket.off('CHOOSE_PLAYER')
+  },
   mounted() {
     setTimeout(() => {
       this.$socket.emit('msg', {type: 'GET_STATUS'})

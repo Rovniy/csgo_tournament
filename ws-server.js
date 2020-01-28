@@ -6,24 +6,21 @@ const io = require('socket.io')(http)
 const MAP_POOL = ['de_dust2', 'de_mirage', 'de_nuke', 'de_inferno', 'de_train', 'de_vertigo', 'de_overpass']
 const room = {
   admin: {
-    name: 'ravy',
+    name: undefined,
     token: null
   },
   captain_one: {
-    name: 'kolya',
+    name: undefined,
     token: null
   },
   captain_two: {
-    name: 'petya',
+    name: undefined,
     token: null
   },
-  players: ['valera', 'andrey', 'vanya'],
+  players: [],
   maps: [],
   maps_ready_count: 0,
-  teams: {
-    'kolya': [],
-    'petya': []
-  },
+  teams: {},
   whose_turn: 1
 }
 

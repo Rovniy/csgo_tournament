@@ -63,8 +63,10 @@ export default {
       this.$router.push('/final')
       console.log('MAP_IS_CHOOSE_GO_NEXT',)
     })
-
-
+  },
+  beforeDestroy() {
+    this.$socket.off('GET_STATUS')
+    this.$socket.off('MAP_IS_CHOOSE_GO_NEXT')
   },
   mounted() {
     setTimeout(() => {
