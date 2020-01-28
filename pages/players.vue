@@ -7,8 +7,8 @@
         <h3 class="block-pickers_title">Капитан 1: {{ captainOne }}</h3>
         <el-row>
           <ul class="block-pickers__side__list">
-            <li class="block-pickers__side__list_item" v-for="(player, index) in teamOne" :key="index"
-                @click="removePlayerTeam1(index)">
+            <li class="block-pickers__side__list_item" v-for="player in teamOne" :key="player"
+                @click="removePlayer(player)">
               <el-button type="warning" plain>
                 {{ player }}
               </el-button>
@@ -16,8 +16,8 @@
           </ul>
         </el-row>
         <el-row>
-          <span v-show="parseInt(role) !== room.whose_turn" class="block-pickers__side_text">Пик</span>
-          <span v-show="parseInt(role) === room.whose_turn" class="block-pickers__side_text">Ожидание</span>
+          <span v-show="parseInt(role) === room.whose_turn" class="block-pickers__side_text">Пик</span>
+          <span v-show="parseInt(role) !== room.whose_turn" class="block-pickers__side_text">Ожидание</span>
         </el-row>
       </div>
 
@@ -38,15 +38,15 @@
       <div class="block-pickers__right">
         <h3 class="block-pickers_title">Капитан 2: {{ captainTwo }}</h3>
         <ul class="block-pickers__side__list">
-          <li class="block-pickers__side__list_item" v-for="(player, index) in teamOTwo" :key="index"
-              @click="removePlayerTeam2(index)">
+          <li class="block-pickers__side__list_item" v-for="player in teamOTwo" :key="player"
+              @click="removePlayer(player)">
             <el-button type="warning" plain>
               {{ player }}
             </el-button>
           </li>
         </ul>
-        <span v-show="parseInt(role) === room.whose_turn" class="block-pickers__side_text">Пик</span>
-        <span v-show="parseInt(role) !== room.whose_turn" class="block-pickers__side_text">Ожидание</span>
+        <span v-show="parseInt(role) !== room.whose_turn" class="block-pickers__side_text">Пик</span>
+        <span v-show="parseInt(role) === room.whose_turn" class="block-pickers__side_text">Ожидание</span>
       </div>
     </div>
 
@@ -55,76 +55,73 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        room: {},
-        role: null
-      }
+export default {
+  data() {
+    return {
+      room: {},
+      role: null
+    }
+  },
+  computed: {
+    captainOne() {
+      return this.room?.captain_one?.name
     },
-    computed: {
-      captainOne() {
-        return this.room?.captain_one?.name
-      },
-      captainTwo() {
-        return this.room?.captain_two?.name
-      },
-      playersList() {
-        return this.room?.players
-      },
-      teamOne() {
-        if (this.room?.teams) {
-          if (this.captainOne) {
-            if (this.room.teams[this.captainOne]) {
-              return this.room.teams[this.captainOne]
-            }
+    captainTwo() {
+      return this.room?.captain_two?.name
+    },
+    playersList() {
+      return this.room?.players
+    },
+    teamOne() {
+      if (this.room?.teams) {
+        if (this.captainOne) {
+          if (this.room.teams[this.captainOne]) {
+            return this.room.teams[this.captainOne]
           }
         }
-        return []
-      },
-      teamOTwo() {
-        if (this.room?.teams) {
-          if (this.captainTwo) {
-            if (this.room.teams[this.captainTwo]) {
-              return this.room.teams[this.captainTwo]
-            }
+      }
+      return []
+    },
+    teamOTwo() {
+      if (this.room?.teams) {
+        if (this.captainTwo) {
+          if (this.room.teams[this.captainTwo]) {
+            return this.room.teams[this.captainTwo]
           }
         }
-        return []
       }
-    },
-    beforeMount() {
-      this.$socket.on('GET_STATUS', data => {
-        this.room = data
-        console.log('GET_STATUS', data)
-      })
-      this.$socket.on('CHOOSE_PLAYER', data => {
-        this.players = data
-        console.log('CHOOSE_PLAYER', data)
-      })
-    },
-    mounted() {
-      setTimeout(() => {
-        this.$socket.emit('msg', {type: 'GET_STATUS'})
-      }, 500)
+      return []
+    }
+  },
+  beforeMount() {
+    this.$socket.on('GET_STATUS', data => {
+      this.room = data
+      console.log('GET_STATUS', data)
+    })
+    this.$socket.on('CHOOSE_PLAYER', data => {
+      this.players = data
+      console.log('CHOOSE_PLAYER', data)
+    })
+  },
+  mounted() {
+    setTimeout(() => {
+      this.$socket.emit('msg', {type: 'GET_STATUS'})
+    }, 500)
 
-      this.role = localStorage.getItem('ROLE')
+    this.role = localStorage.getItem('ROLE')
+  },
+  methods: {
+    pickPlayer(player) {
+      this.$socket.emit('msg', { type: 'CHOOSE_PLAYER', name: player })
     },
-    methods: {
-      pickPlayer(player) {
-        this.$socket.emit('msg', { type: 'CHOOSE_PLAYER', name: player })
-      },
-      removePlayerTeam1(index) {
-
-      },
-      removePlayerTeam2(index) {
-
-      },
-      nextStep() {
-        this.$router.push('maps')
-      }
+    removePlayer(player) {
+      this.$socket.emit('msg', { type: 'CANCEL_CHOOSE_PLAYER', player })
+    },
+    nextStep() {
+      this.$router.push('maps')
     }
   }
+}
 </script>
 
 <style lang="sass" scoped>

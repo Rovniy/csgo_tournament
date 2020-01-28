@@ -6,21 +6,24 @@ const io = require('socket.io')(http)
 const MAP_POOL = ['de_dust2', 'de_mirage', 'de_nuke', 'de_inferno', 'de_train', 'de_vertigo', 'de_overpass']
 const room = {
   admin: {
-    name: undefined,
+    name: 'ravy',
     token: null
   },
   captain_one: {
-    name: undefined,
+    name: 'kolya',
     token: null
   },
   captain_two: {
-    name: undefined,
+    name: 'petya',
     token: null
   },
   players: ['valera', 'andrey', 'vanya'],
   maps: [],
   maps_ready_count: 0,
-  teams: {},
+  teams: {
+    'kolya': [],
+    'petya': []
+  },
   whose_turn: 1
 }
 
@@ -102,6 +105,12 @@ io.on('connection', function (socket) {
 
         room.maps_ready_count++
 
+        if (room.whose_turn === 1) {
+          room.whose_turn = 2
+        } else {
+          room.whose_turn = 1
+        }
+
         if (room.maps_ready_count === room.maps.length - 1) {
           io.emit('MAP_IS_CHOOSE_GO_NEXT', room.maps)
         } else {
@@ -141,12 +150,12 @@ io.on('connection', function (socket) {
         break
 
       case 'CANCEL_CHOOSE_PLAYER':
-        let index = room.teams[room.captain_one.token].indexOf(data.player)
+        let index = room.teams[room.captain_one.name].indexOf(data.player)
         if (index !== -1) {
           room.teams[room.captain_one.name].splice(index, 1)
         }
 
-        index = room.teams[room.captain_two.token].indexOf(data.player)
+        index = room.teams[room.captain_two.name].indexOf(data.player)
         if (index !== -1) {
           room.teams[room.captain_two.name].splice(index, 1)
         }
@@ -157,9 +166,9 @@ io.on('connection', function (socket) {
           room.whose_turn = 1
         }
 
-        room.players.push(data.name)
+        room.players.push(data.player)
 
-        io.emit('GET_STATUS', room.teams)
+        io.emit('GET_STATUS', room)
         break
 
       default:
