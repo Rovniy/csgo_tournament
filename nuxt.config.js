@@ -25,7 +25,7 @@ export default {
   */
   css: [
     'element-ui/lib/theme-chalk/index.css',
-    { src: resolve(__dirname, 'assets/styles/base.sass'), lang: 'sass' }
+    { src: resolve(__dirname, 'assets/base.sass'), lang: 'sass' }
 
   ],
   /*
@@ -38,10 +38,6 @@ export default {
   /*
   ** Nuxt.js dev-modules
   */
-  buildModules: [
-    // Doc: https://github.com/nuxt-community/eslint-module
-    '@nuxtjs/eslint-module'
-  ],
   /*
   ** Nuxt.js modules
   */
