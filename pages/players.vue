@@ -8,6 +8,8 @@
         <ul class="block-pickers__side__list">
           <li class="block-pickers__side__list_item" v-for="(player, index) in team1" :key="index" @click="removePlayerTeam1(index)">{{player}}</li>
         </ul>
+        <span v-show="true" class="block-pickers__side_text">Пик</span>
+        <span v-show="!true" class="block-pickers__side_text">Ожидание</span>
       </div>
 
       <div class="block-pickers__players">
@@ -21,8 +23,12 @@
         <ul class="block-pickers__side__list">
           <li class="block-pickers__side__list_item" v-for="(player, index) in team2" :key="index" @click="removePlayerTeam2(index)">{{player}}</li>
         </ul>
+        <span v-show="!true" class="block-pickers__side_text">Пик</span>
+        <span v-show="true" class="block-pickers__side_text">Ожидание</span>
       </div>
     </div>
+
+    <button class="el-button" @click="nextStep">Далее</button>
   </div>
 </template>
 
@@ -72,8 +78,10 @@ export default {
       },
       removePlayerTeam2(index) {
 
-      }
+      },
+      nextStep() {
 
+      }
   }
 }
 </script>
@@ -94,6 +102,8 @@ export default {
   flex-direction: row
   justify-content: space-around
 
+  &__left, &__right
+    position: relative
 
   &_title
     border: 2px solid black
@@ -122,9 +132,20 @@ export default {
         background-color: black
         cursor: pointer
 
-  &__side__list
-    padding-top: 0
-    width: fit-content
-    margin: 0 auto
+  &__side
+    &__list
+      padding-top: 0
+      width: fit-content
+      margin: 0 auto
 
+    &_text
+      position: absolute
+      bottom: 0
+      left: 0
+      right: 0
+      margin: auto
+      font-size: 30px
+      text-align: center
+      line-height: 40px
+      border-radius: 10px
 </style>
