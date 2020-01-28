@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <button class="el-button" @click="nextStep">Далее</button>
+    <button v-if='role' class="el-button" @click="nextStep">Далее</button>
   </div>
 </template>
 
@@ -42,7 +42,8 @@
   export default {
     data() {
       return {
-        room: null
+        room: null,
+        role: null
       }
     },
     computed: {
@@ -60,7 +61,7 @@
       },
       teamOTwo() {
         return this.room?.teams[this.room?.captain_two?.name]
-      }
+      },
     },
     beforeMount() {
       this.$socket.on('GET_STATUS', data => {
@@ -76,6 +77,7 @@
       setTimeout(() => {
         this.$socket.emit('msg', {type: 'GET_STATUS'})
       }, 500)
+      this.role = localStorage.getItem('role')
     },
     methods: {
       pickPlayer(player) {
@@ -88,7 +90,7 @@
 
       },
       nextStep() {
-
+        this.$router.push('maps')
       }
     }
   }

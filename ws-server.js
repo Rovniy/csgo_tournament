@@ -101,7 +101,7 @@ io.on('connection', function (socket) {
         if (room.maps_ready_count === room.maps.length - 1) {
           socket.emit('MAP_IS_CHOOSE_GO_NEXT', room.maps)
         } else {
-          socket.emit('BAN_MAP', room.maps)
+          socket.emit('GET_STATUS', room)
         }
         break
 

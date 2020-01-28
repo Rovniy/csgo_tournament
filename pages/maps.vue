@@ -4,19 +4,19 @@
     <div class="block-maps">
 
       <div class="block-maps__left">
-        <h3 class="block-maps_title">Капитан 1: {{captain1}}</h3>
+        <h3 class="block-maps_title">Капитан 1: {{captainOne}}</h3>
         <span v-show="true" class="block-maps_text">Пик</span>
         <span v-show="!true" class="block-maps_text">Ожидание</span>
       </div>
 
       <div class="block-maps__middle">
-        <ul class="block-maps__list">
-          <li class="block-maps__list_item" :class="{'block-maps__list_item_banned': map.banned}" v-for="(map, index) in maps" :key="index" @click="banMap(index)">{{map.name}}</li>
-        </ul>
+        <div class="block-maps__list">
+          <button class="block-maps__list_item" :class="{'block-maps__list_item_banned': map.banned}" v-for="(map, index) in mapsList" :key="index" @click="banMap(map.name)" :disabled="map.banned">{{map.name}}</button>
+        </div>
       </div>
 
       <div class="block-maps__right">
-        <h3 class="block-maps_title">Капитан 2: {{captain2}}</h3>
+        <h3 class="block-maps_title">Капитан 2: {{captainTwo}}</h3>
         <span v-show="!true" class="block-maps_text">Пик</span>
         <span v-show="true" class="block-maps_text">Ожидание</span>
       </div>
@@ -29,46 +29,39 @@
 export default {
     data() {
         return {
-            captain1: 'xyi',
-            captain2: 'pizda',
-            maps: [
-                {
-                    name: 'de_dust2',
-                    banned: false
-                },
-                {
-                    name: 'de_mirage',
-                    banned: false
-                },
-                {
-                    name: 'de_nuke',
-                    banned: false
-                },
-                {
-                    name: 'de_train',
-                    banned: false
-                },
-                {
-                    name: 'de_inferno',
-                    banned: false
-                },
-                {
-                    name: 'de_vertigo',
-                    banned: false
-                },
-                {
-                    name: 'de_overpass',
-                    banned: false
-                },
-
-            ]
+            room: null,
+            maps: []
+        }
+    },
+    computed: {
+        captainOne() {
+            return this.room?.captain_one?.name
+        },
+        captainTwo() {
+            return this.room?.captain_two?.name
+        },
+        mapsList() {
+            return this.room?.maps
         }
     },
     methods: {
-      banMap(index) {
+      banMap(mapName) {
+          this.$socket.emit('msg', {type: 'BAN_MAP', map: mapName})
+          this.$socket.emit('msg', {type: 'GET_STATUS'})
 
       }
-    }
+    },
+    beforeMount() {
+      this.$socket.on('GET_STATUS', data => {
+          this.room = data
+          console.log('GET_STATUS', data)
+      })
+    },
+    mounted() {
+        setTimeout(() => {
+            this.$socket.emit('msg', {type: 'GET_STATUS'})
+        }, 500)
+    },
 }
 </script>
 
@@ -100,18 +93,23 @@ export default {
 
   &__list
     padding: 52px 0 0 0
-    list-style-type: none
     font-size: 20px
     line-height: 28px
     font-weight: bold
-
+    display: flex
+    flex-direction: column
+    align-items: center
 
     &_item
+      font-size: 20px
+      line-height: 28px
+      font-weight: bold
       margin-bottom: 5px
       width: 150px
       text-align: center
       padding: 5px
       border-radius: 5px
+      border: none
       color: white
       background-color: orangered
       cursor: pointer

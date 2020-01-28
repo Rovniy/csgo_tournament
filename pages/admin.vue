@@ -1,42 +1,59 @@
 <template>
   <div class="container">
+    <div class="buttons">
+      <nuxt-link class="el-button" to="maps">Карты</nuxt-link>
+      <nuxt-link class="el-button" to="players">Игроки</nuxt-link>
+    </div>
     <form @submit="addPlayer" action="#" novalidate>
       <label for="player" class="label">Имя игрока:</label>
       <input class="input" type="text" id="player" placeholder="Введите имя" v-model="playerName">
       <button type="submit" class="el-button">Добавить</button>
     </form>
     <div>
-      <h1 class="title">Список игроков</h1>
+      <h1 class="title">Список игроков {{ playersCount }}</h1>
       <ul class="block-pickers__players__list">
-        <li class="block-pickers__players__list_item" v-for="(player, index) in players" :key="index" @click="removePlayer(index)">{{player}}</li>
+        <li class="block-pickers__players__list_item" v-for="(player, index) in players" :key="index" @click="removePlayer(player)">{{player}}</li>
       </ul>
     </div>
   </div>
 </template>
 
 <script>
+
 export default {
+    computed: {
+        playersCount() {
+            return this.players.length
+        }
+    },
     data() {
         return {
             playerName: null,
-            players: [
-                'first',
-                'second',
-                'third',
-                'fourth',
-                'fifth',
-                'sixth'
-            ]
+            players: []
         }
     },
     methods: {
         addPlayer() {
+            this.$socket.emit('msg', {type: 'CREATE_PLAYER', name: this.playerName})
             this.playerName = null
+            this.$socket.emit('msg', {type: 'GET_STATUS'})
         },
-        removePlayer() {
-
+        removePlayer(player) {
+            this.$socket.emit('msg', {type: 'DELETE_PLAYERS', name: player})
+            this.$socket.emit('msg', {type: 'GET_STATUS'})
         }
-    }
+    },
+    beforeMount() {
+        this.$socket.on('GET_STATUS', data => {
+            this.players = data?.players
+            console.log('GET_PLAYERS_LIST', data?.players)
+        })
+    },
+    mounted() {
+        setTimeout(() => {
+            this.$socket.emit('msg', {type: 'GET_STATUS'})
+        }, 500)
+    },
 }
 </script>
 
@@ -47,6 +64,15 @@ export default {
   flex-direction: column
   align-items: center
   justify-content: center
+
+.buttons
+  display: flex
+  flex-direction: row
+  justify-content: center
+  align-items: center
+  padding-bottom: 30px
+  a
+    text-decoration: none
 
 .title
   font-size: 60px

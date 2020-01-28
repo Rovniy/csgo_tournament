@@ -8,7 +8,7 @@
 export default {
   beforeMount() {
     this.$socket.on('GET_STATUS', (data) => {
-      if (data?.admin?.name !== undefined && data?.captain_one?.name !== undefined && data?.captain_two?.name !== undefined) {
+      if (data?.admin?.name !== undefined && data?.captain_one?.name !== undefined && data?.captain_two?.name !== undefined && this.$route.name === '/') {
         this.$router.push('/players')
       }
       console.log('GET_STATUS', data)
