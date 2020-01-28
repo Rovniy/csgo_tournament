@@ -5,19 +5,32 @@
 
       <div class="block-pickers__left">
         <h3 class="block-pickers_title">Капитан 1: {{ captainOne }}</h3>
-        <ul class="block-pickers__side__list">
-          <li class="block-pickers__side__list_item" v-for="(player, index) in teamOne" :key="index"
-              @click="removePlayerTeam1(index)">{{player}}
-          </li>
-        </ul>
-        <span v-show="true" class="block-pickers__side_text">Пик</span>
-        <span v-show="!true" class="block-pickers__side_text">Ожидание</span>
+        <el-row>
+          <ul class="block-pickers__side__list">
+            <li class="block-pickers__side__list_item" v-for="(player, index) in teamOne" :key="index"
+                @click="removePlayerTeam1(index)">
+              <el-button type="warning" plain>
+                {{ player }}
+              </el-button>
+            </li>
+          </ul>
+        </el-row>
+        <el-row>
+          <span v-show="parseInt(role) !== room.whose_turn" class="block-pickers__side_text">Пик</span>
+          <span v-show="parseInt(role) === room.whose_turn" class="block-pickers__side_text">Ожидание</span>
+        </el-row>
       </div>
 
       <div class="block-pickers__players">
         <ul class="block-pickers__players__list">
-          <li class="block-pickers__players__list_item" v-for="(player, index) in playersList" :key="index"
-              @click="pickPlayer(player)">{{ player }}
+          <li class="block-pickers__players__list_item"
+              v-for="(player, index) in playersList"
+              :key="index"
+              @click="pickPlayer(player)">
+            <el-button type="primary"
+                       :disabled="room.whose_turn !== parseInt(role)">
+              {{ player }}
+            </el-button>
           </li>
         </ul>
       </div>
@@ -26,15 +39,18 @@
         <h3 class="block-pickers_title">Капитан 2: {{ captainTwo }}</h3>
         <ul class="block-pickers__side__list">
           <li class="block-pickers__side__list_item" v-for="(player, index) in teamOTwo" :key="index"
-              @click="removePlayerTeam2(index)">{{player}}
+              @click="removePlayerTeam2(index)">
+            <el-button type="warning" plain>
+              {{ player }}
+            </el-button>
           </li>
         </ul>
-        <span v-show="!true" class="block-pickers__side_text">Пик</span>
-        <span v-show="true" class="block-pickers__side_text">Ожидание</span>
+        <span v-show="parseInt(role) === room.whose_turn" class="block-pickers__side_text">Пик</span>
+        <span v-show="parseInt(role) !== room.whose_turn" class="block-pickers__side_text">Ожидание</span>
       </div>
     </div>
 
-    <button v-if='role' class="el-button" @click="nextStep">Далее</button>
+    <button v-if="role === 'ADMIN'" class="el-button" @click="nextStep">Далее</button>
   </div>
 </template>
 
@@ -42,7 +58,7 @@
   export default {
     data() {
       return {
-        room: null,
+        room: {},
         role: null
       }
     },
@@ -57,11 +73,25 @@
         return this.room?.players
       },
       teamOne() {
-        return this.room?.teams[this.room?.captain_one?.name]
+        if (this.room?.teams) {
+          if (this.captainOne) {
+            if (this.room.teams[this.captainOne]) {
+              return this.room.teams[this.captainOne]
+            }
+          }
+        }
+        return []
       },
       teamOTwo() {
-        return this.room?.teams[this.room?.captain_two?.name]
-      },
+        if (this.room?.teams) {
+          if (this.captainTwo) {
+            if (this.room.teams[this.captainTwo]) {
+              return this.room.teams[this.captainTwo]
+            }
+          }
+        }
+        return []
+      }
     },
     beforeMount() {
       this.$socket.on('GET_STATUS', data => {
@@ -77,7 +107,8 @@
       setTimeout(() => {
         this.$socket.emit('msg', {type: 'GET_STATUS'})
       }, 500)
-      this.role = localStorage.getItem('role')
+
+      this.role = localStorage.getItem('ROLE')
     },
     methods: {
       pickPlayer(player) {
@@ -141,7 +172,6 @@
           padding: 5px
           border-radius: 5px
           color: white
-          background-color: black
           cursor: pointer
 
     &__side
@@ -151,13 +181,9 @@
         margin: 0 auto
 
       &_text
-        position: absolute
-        bottom: 0
-        left: 0
-        right: 0
-        margin: auto
-        font-size: 30px
+        display: block
         text-align: center
+        font-size: 30px
         line-height: 40px
         border-radius: 10px
 </style>

@@ -51,17 +51,19 @@ io.on('connection', function (socket) {
           socket.emit('ADMIN_ENTER_CONFIRM', room.admin)
           console.log('ADMIN_ENTER_AGAIN')
         }
+
+        io.emit('GET_STATUS', room)
         break
 
       case 'CAPTAIN_ENTER':
-        if (room.captain_one.name === undefined) {
+        if (room.captain_one.name === undefined && room.admin.name !== data.name) {
           room.captain_one.name = data.name
           room.captain_one.token = Date.now()
           room.teams[room.captain_one.name] = []
           socket.emit('CAPTAIN_ENTER_1_CONFIRM', room.captain_one)
 
           console.log('CAPTAIN_ENTER_1_FIRST_TIME', room.captain_one)
-        } else if (room.captain_two.name === undefined && room.captain_one.name !== data.name) {
+        } else if (room.captain_two.name === undefined && room.captain_one.name !== data.name && room.admin.name !== data.name) {
           room.captain_two.name = data.name
           room.captain_two.token = Date.now()
           room.teams[room.captain_two.name] = []
@@ -75,6 +77,8 @@ io.on('connection', function (socket) {
           socket.emit('CAPTAIN_ENTER_2_CONFIRM', room.captain_two)
           console.log('CAPTAIN_ENTER_2_AGAIN', room.captain_two)
         }
+
+        io.emit('GET_STATUS', room)
         break
 
       case 'PLAYER_ENTER':
@@ -86,7 +90,7 @@ io.on('connection', function (socket) {
         break
 
       case 'GO_CHOOSE_MAP':
-        socket.emit('GO_CHOOSE_MAP')
+        io.emit('GO_CHOOSE_MAP')
         break
 
       case 'BAN_MAP':
@@ -99,14 +103,14 @@ io.on('connection', function (socket) {
         room.maps_ready_count++
 
         if (room.maps_ready_count === room.maps.length - 1) {
-          socket.emit('MAP_IS_CHOOSE_GO_NEXT', room.maps)
+          io.emit('MAP_IS_CHOOSE_GO_NEXT', room.maps)
         } else {
-          socket.emit('GET_STATUS', room)
+          io.emit('GET_STATUS', room)
         }
         break
 
       case 'CREATE_PLAYER':
-        room.players.push(data.map)
+        room.players.push(data.name)
         socket.emit('CREATE_PLAYER', room.players)
         break
 
@@ -133,7 +137,7 @@ io.on('connection', function (socket) {
         if (playerInd !== -1) {
           room.players.splice(playerInd, 1)
         }
-        socket.emit('GET_STATUS', room.teams)
+        io.emit('GET_STATUS', room)
         break
 
       case 'CANCEL_CHOOSE_PLAYER':
@@ -155,7 +159,7 @@ io.on('connection', function (socket) {
 
         room.players.push(data.name)
 
-        socket.emit('GET_STATUS', room.teams)
+        io.emit('GET_STATUS', room.teams)
         break
 
       default:
