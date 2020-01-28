@@ -1,9 +1,5 @@
 <template>
   <div class="container">
-    <div class="buttons">
-      <nuxt-link class="el-button" to="maps">Карты</nuxt-link>
-      <nuxt-link class="el-button" to="players">Игроки</nuxt-link>
-    </div>
     <form @submit="addPlayer" action="#" novalidate>
       <label for="player" class="label">Имя игрока:</label>
       <input class="input" type="text" id="player" placeholder="Введите имя" v-model="playerName">

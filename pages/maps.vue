@@ -5,25 +5,24 @@
 
       <div class="block-maps__left">
         <h3 class="block-maps_title">Капитан 1: {{captainOne}}</h3>
-        <span v-show="parseInt(role) === room.whose_turn" class="block-maps_text">Пик</span>
-        <span v-show="parseInt(role) !== room.whose_turn" class="block-maps_text">Ожидание</span>
+        <span v-show="room.whose_turn === 1" class="block-maps_text">Пик</span>
+        <span v-show="room.whose_turn === 2" class="block-maps_text">Ожидание</span>
       </div>
 
       <div class="block-maps__middle">
         <div class="block-maps__list">
-          <button class="block-maps__list_item" :class="{'block-maps__list_item_banned': map.banned}"
-                  v-for="(map, index) in mapsList" :key="index" @click="banMap(map.name)" :disabled="map.banned">
+          <el-button class="block-maps__list_item" :class="{'block-maps__list_item_banned': map.banned}"
+                  v-for="(map, index) in mapsList" :key="index" @click="banMap(map.name)" :disabled="map.banned || room.whose_turn !== parseInt(role) || isInteract" >
             {{map.name}}
-          </button>
+          </el-button>
         </div>
       </div>
 
       <div class="block-maps__right">
         <h3 class="block-maps_title">Капитан 2: {{captainTwo}}</h3>
-        <span v-show="parseInt(role) !== room.whose_turn" class="block-maps_text">Пик</span>
-        <span v-show="parseInt(role) === room.whose_turn" class="block-maps_text">Ожидание</span>
+        <span v-show="room.whose_turn === 2" class="block-maps_text">Пик</span>
+        <span v-show="room.whose_turn === 1" class="block-maps_text">Ожидание</span>
       </div>
-
     </div>
   </div>
 </template>
@@ -46,6 +45,9 @@ export default {
     },
     mapsList() {
       return this.room?.maps
+    },
+    isInteract() {
+      return !this.role
     }
   },
   methods: {

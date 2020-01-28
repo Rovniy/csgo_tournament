@@ -1,14 +1,16 @@
 <template>
   <div class="container">
     <h1 class="title">xPloit Pracc Helper</h1>
-    <div>
-      <el-input v-model="name" />
-    </div>
-    <div class="block">
-      <el-button type="primary" @click="joinAsAdmin" :disabled="isNoName || isAdmin">Я - Админ</el-button>
-      <el-button type="primary" @click="joinAsCaptain" :disabled="isNoName || isCaptains || disableButton">Я - Капитан команды</el-button>
-      <el-button type="primary" @click="joinAsPlayer">Я - Игрок</el-button>
-    </div>
+    <el-form ref="form" label-width="120px">
+      <el-form-item label="Nickname">
+        <el-input v-model="name" placeholder="Напиши свой ник" />
+      </el-form-item>
+      <el-form-item label="Choose role">
+        <el-button type="primary" @click="joinAsAdmin" :disabled="isNoName || isAdmin">Я - Админ</el-button>
+        <el-button type="primary" @click="joinAsCaptain" :disabled="isNoName || isCaptains || disableButton">Я - Капитан команды</el-button>
+        <el-button type="primary" @click="joinAsPlayer">Я - Игрок</el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
@@ -16,7 +18,7 @@
 export default {
   data () {
     return {
-      name: 'Ravy',
+      name: '',
       room: null,
       disableButton: false
     }
@@ -43,7 +45,7 @@ export default {
       this.disableButton = true
     },
     joinAsPlayer() {
-      this.$socket.emit('msg', { type: 'PLAYER_ENTER' })
+      this.$router.push('players')
     }
   },
   beforeMount () {

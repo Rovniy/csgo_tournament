@@ -21,6 +21,17 @@ export default {
   components: {
     HeaderComponent
   },
+  beforeMount() {
+    this.$socket.on('GET_STATUS', () => {
+      const myRole = localStorage.getItem('ROLE')
+      this.isAdmin = myRole === 'ADMIN'
+    })
+    this.$socket.on('RESET_DEFAULT', () => {
+      localStorage.removeItem('ROLE')
+      this.$route.push('/')
+    })
+
+  },
   mounted() {
     const myRole = localStorage.getItem('ROLE')
     this.isAdmin = myRole === 'ADMIN'

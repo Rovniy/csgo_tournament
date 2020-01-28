@@ -1,34 +1,33 @@
 <template>
   <div class="container">
-    <h1 class="title">Шаг 1 из 2</h1>
+    <h1 class="title">Пики игроков</h1>
     <div class="block-pickers">
-
       <div class="block-pickers__left">
         <h3 class="block-pickers_title">Капитан 1: {{ captainOne }}</h3>
         <el-row>
           <ul class="block-pickers__side__list">
-            <li class="block-pickers__side__list_item" v-for="player in teamOne" :key="player"
-                @click="removePlayer(player)">
-              <el-button type="warning" plain>
+            <li class="block-pickers__side__list_item" v-for="player in teamOne" :key="player">
+              <el-button type="warning" plain :disabled="isInteract || role !== 'ADMIN'" @click="removePlayer(player)">
                 {{ player }}
               </el-button>
             </li>
           </ul>
         </el-row>
         <el-row>
-          <span v-show="parseInt(role) === room.whose_turn" class="block-pickers__side_text">Пик</span>
-          <span v-show="parseInt(role) !== room.whose_turn" class="block-pickers__side_text">Ожидание</span>
+          <span v-show="room.whose_turn === 1" class="block-pickers__side_text">Пик</span>
+          <span v-show="room.whose_turn === 2" class="block-pickers__side_text">Ожидание</span>
         </el-row>
       </div>
 
       <div class="block-pickers__players">
+        <h3>Игроки:</h3>
         <ul class="block-pickers__players__list">
           <li class="block-pickers__players__list_item"
               v-for="(player, index) in playersList"
-              :key="index"
-              @click="pickPlayer(player)">
+              :key="index">
             <el-button type="primary"
-                       :disabled="room.whose_turn !== parseInt(role)">
+                       :disabled="room.whose_turn !== parseInt(role) || isInteract"
+                       @click="pickPlayer(player)">
               {{ player }}
             </el-button>
           </li>
@@ -38,15 +37,14 @@
       <div class="block-pickers__right">
         <h3 class="block-pickers_title">Капитан 2: {{ captainTwo }}</h3>
         <ul class="block-pickers__side__list">
-          <li class="block-pickers__side__list_item" v-for="player in teamOTwo" :key="player"
-              @click="removePlayer(player)">
-            <el-button type="warning" plain>
+          <li class="block-pickers__side__list_item" v-for="player in teamOTwo" :key="player">
+            <el-button type="warning" plain :disabled="isInteract || role !== 'ADMIN'" @click="removePlayer(player)">
               {{ player }}
             </el-button>
           </li>
         </ul>
-        <span v-show="parseInt(role) !== room.whose_turn" class="block-pickers__side_text">Пик</span>
-        <span v-show="parseInt(role) === room.whose_turn" class="block-pickers__side_text">Ожидание</span>
+        <span v-show="room.whose_turn === 2" class="block-pickers__side_text">Пик</span>
+        <span v-show="room.whose_turn === 1" class="block-pickers__side_text">Ожидание</span>
       </div>
     </div>
 
@@ -91,6 +89,9 @@ export default {
         }
       }
       return []
+    },
+    isInteract() {
+      return !this.role
     }
   },
   beforeMount() {
@@ -102,10 +103,15 @@ export default {
       this.players = data
       console.log('CHOOSE_PLAYER', data)
     })
+    this.$socket.on('GO_CHOOSE_MAP', data => {
+      this.$router.push('/maps')
+      console.log('CHOOSE_PLAYER', data)
+    })
   },
   beforeDestroy() {
     this.$socket.off('GET_STATUS')
     this.$socket.off('CHOOSE_PLAYER')
+    this.$socket.off('GO_CHOOSE_MAP')
   },
   mounted() {
     setTimeout(() => {
@@ -122,7 +128,7 @@ export default {
       this.$socket.emit('msg', { type: 'CANCEL_CHOOSE_PLAYER', player })
     },
     nextStep() {
-      this.$router.push('maps')
+      this.$socket.emit('msg', { type: 'GO_CHOOSE_MAP' })
     }
   }
 }

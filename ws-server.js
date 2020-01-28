@@ -4,7 +4,7 @@ const app = require('express')()
 const http = require('http').createServer(app) // eslint-disable-line import/order
 const io = require('socket.io')(http)
 const MAP_POOL = ['de_dust2', 'de_mirage', 'de_nuke', 'de_inferno', 'de_train', 'de_vertigo', 'de_overpass']
-const room = {
+const origin = {
   admin: {
     name: undefined,
     token: null
@@ -23,6 +23,8 @@ const room = {
   teams: {},
   whose_turn: 1
 }
+let room = JSON.parse(JSON.stringify(origin))
+
 
 MAP_POOL.forEach(map => {
   room.maps.push({
@@ -118,6 +120,7 @@ io.on('connection', function (socket) {
       case 'CREATE_PLAYER':
         room.players.push(data.name)
         socket.emit('CREATE_PLAYER', room.players)
+        io.emit('GET_STATUS', room)
         break
 
       case 'DELETE_PLAYERS':
@@ -127,6 +130,7 @@ io.on('connection', function (socket) {
           room.players.splice(playerIndex, 1)
         }
         socket.emit('DELETE_PLAYERS', room.players)
+        io.emit('GET_STATUS', room)
         break
 
       case 'CHOOSE_PLAYER':
@@ -166,6 +170,12 @@ io.on('connection', function (socket) {
         room.players.push(data.player)
 
         io.emit('GET_STATUS', room)
+        break
+
+      case 'RESET_DEFAULT':
+        room = JSON.parse(JSON.stringify(origin))
+        io.emit('GET_STATUS', room)
+        io.emit('RESET_DEFAULT', room)
         break
 
       default:

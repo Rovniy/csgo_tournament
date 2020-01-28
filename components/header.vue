@@ -12,6 +12,7 @@
     <el-menu-item index="3">Выбор карт</el-menu-item>
     <el-menu-item index="4">Выбор игроков</el-menu-item>
     <el-menu-item index="5">Финалочка</el-menu-item>
+    <el-menu-item index="6">СБРОСИТЬ НАХУЙ</el-menu-item>
   </el-menu>
 </template>
 
@@ -39,6 +40,11 @@
             break
           case '5':
             this.$router.push('/final')
+            break
+          case '6':
+            this.$socket.emit('msg', { type: 'RESET_DEFAULT' })
+            break
+          default:
             break
         }
       }
