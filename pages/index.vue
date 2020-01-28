@@ -64,39 +64,14 @@ export default {
   //     this.task = data
   //   })
   // },
-  // mounted () {
-  //   setTimeout(() => {
-  //     this.$socket.emit('task', { type: 'GET_LAST_TASK' })
-  //   }, 1000)
-  // }
+  mounted () {
+    setTimeout(() => {
+      this.$socket.emit('task', { type: 'GET_LAST_TASK' })
+      //this.$socket.emit('task', { type: 'GET_LAST_TASK' })
+    }, 1000)
+  }
 }
 </script>
 
 <style lang="sass" scoped>
-  .container
-    width: 100vw
-    height: calc(100vh - 60px)
-    display: flex
-    justify-content: center
-    align-items: center
-    flex-direction: column
-
-    img
-      max-height: 500px
-
-    h1
-      margin: 20px 0
-      max-width: 70%
-      text-align: center
-
-  .ask
-    height: 14px
-
-  .Base64Spinner
-    @keyframes spinner
-      0%
-        transform: rotateZ(0) rotateY(0) rotateX(0)
-      100%
-        transform: rotateZ(360deg) rotateY(360deg) rotateX(360deg)
-    animation: spinner 2s infinite linear
 </style>
