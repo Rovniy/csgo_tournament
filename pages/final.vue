@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <textarea name="" id="" cols="30" rows="10">{{text}}</textarea>
+    <textarea name="" id="" cols="30" rows="10">{{ text }}</textarea>
   </div>
 </template>
 
@@ -8,7 +8,8 @@
 export default {
     data() {
         return {
-            room: null
+          room: null,
+          text: ''
         }
     },
     beforeMount() {
