@@ -4,6 +4,14 @@ const app = require('express')()
 const http = require('http').createServer(app) // eslint-disable-line import/order
 const io = require('socket.io')(http)
 const MAP_POOL = ['de_dust2', 'de_mirage', 'de_nuke', 'de_inferno', 'de_train', 'de_vertigo', 'de_overpass']
+const setDefaultMapPool = (mapPool) => {
+  mapPool.forEach(map => {
+    room.maps.push({
+      name: map,
+      banned: false
+    })
+  })
+}
 const origin = {
   admin: {
     name: undefined,
@@ -25,13 +33,7 @@ const origin = {
 }
 let room = JSON.parse(JSON.stringify(origin))
 
-
-MAP_POOL.forEach(map => {
-  room.maps.push({
-    name: map,
-    banned: false
-  })
-})
+setDefaultMapPool(MAP_POOL)
 
 io.on('connection', function (socket) {
   console.log('USER CONNECTED. ID:', socket.id)
@@ -174,6 +176,7 @@ io.on('connection', function (socket) {
 
       case 'RESET_DEFAULT':
         room = JSON.parse(JSON.stringify(origin))
+        setDefaultMapPool(MAP_POOL)
         io.emit('GET_STATUS', room)
         io.emit('RESET_DEFAULT', room)
         break
